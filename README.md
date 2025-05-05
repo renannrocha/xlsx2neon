@@ -1,3 +1,5 @@
+<img width="100%" src="banner.png" alt="banner">
+
 # xlsx-db-ingestor
 This project is a Python application designed to read Excel files, extract table data, and send it to a NeonDB database. It provides a graphical user interface (GUI) using `tkinter` to select Excel files, define table configurations, and process the data for insertion into the database.
 
