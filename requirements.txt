@@ -1,0 +1,6 @@
+# requirements.txt
+pandas
+openpyxl
+sqlalchemy
+psycopg2-binary
+dotenv
