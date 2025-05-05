@@ -1,4 +1,3 @@
-# app.py
 import tkinter as tk
 from tkinter import filedialog, messagebox
 from tkinter import ttk
@@ -10,7 +9,7 @@ import os
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-engine = create_engine("postgresql://bigdatapython_owner:npg_drCBKANuF81f@ep-small-wildflower-a4enrv3c.us-east-1.aws.neon.tech/bigdatapython?sslmode=require")
+engine = create_engine(DATABASE_URL)
 
 # Função para ler Excel
 def read_excel_tables(file_path, tables_info):
@@ -34,6 +33,9 @@ class ExcelToNeonApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Excel to NeonDB")
+        self.center_window(500, 500) # largura, altura desejadas
+        self.root.resizable(False, False)
+        self.root.iconbitmap("icone.ico")
 
         self.file_path = tk.StringVar()
         self.num_tables = tk.IntVar()
@@ -56,12 +58,35 @@ class ExcelToNeonApp:
         tk.Entry(num_frame, textvariable=self.num_tables, width=5).pack(side=tk.LEFT)
         tk.Button(num_frame, text="Confirmar", command=self.create_table_inputs).pack(side=tk.LEFT)
 
-        # Área para entradas das tabelas
-        self.tables_container = tk.Frame(self.root)
-        self.tables_container.pack(pady=10)
+        # Scrollable container para os campos de tabelas
+        container_frame = tk.Frame(self.root)
+        container_frame.pack(fill="both", expand=True)
+
+        canvas = tk.Canvas(container_frame)
+        scrollbar = tk.Scrollbar(container_frame, orient="vertical", command=canvas.yview)
+        self.tables_container = tk.Frame(canvas)
+
+        self.tables_container.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+
+        canvas.create_window((0, 0), window=self.tables_container, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
 
         # Botão processar
         tk.Button(self.root, text="Processar e Enviar para o Banco", command=self.process).pack(pady=10)
+    
+    def center_window(self, width, height):
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+        x = (screen_width // 2) - (width // 2)
+        y = (screen_height // 2) - (height // 2)
+        self.root.geometry(f"{width}x{height}+{x}+{y}")
+
 
     def select_file(self):
         path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx *.xls")])
@@ -70,8 +95,8 @@ class ExcelToNeonApp:
 
     def create_table_inputs(self):
         # Apaga entradas antigas
-        for frame in self.table_frames:
-            frame.destroy()
+        for item in self.table_frames:
+            item["frame"].destroy()
         self.table_frames.clear()
 
         for i in range(self.num_tables.get()):
@@ -97,6 +122,7 @@ class ExcelToNeonApp:
                 "start_row": start_row_var,
                 "table_name": table_name_var
             })
+
 
     def process(self):
         try:
