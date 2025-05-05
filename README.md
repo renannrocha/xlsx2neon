@@ -85,7 +85,7 @@ This project is a Python application designed to read Excel files, extract table
 ## File Structure
 
 ```
-excel-to-neondb/
+xlsx2neon/
 ├── app.py             # Main application code
 ├── .env               # Store your NeonDB URL (create this file)
 ├── requirements.txt   # Python dependencies
